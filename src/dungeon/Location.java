@@ -153,8 +153,10 @@ public interface Location {
 
   /**
    * This method updates the visited status of the location.
+   *
+   * @param value takes the boolean value
    */
-  public void updatePlayerVisited();
+  public void updatePlayerVisited(boolean value);
 
   /**
    * This method gives the visit status of the location whether true or false depending on if the

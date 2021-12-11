@@ -18,19 +18,33 @@ class SettingPanel {
   private JCheckBox wrapping;
   private JTextField monsterCount;
   private JLabel rowLabel, colLabel, interconnLabel, percentLabel, monsterCountLabel;
+  private JLabel thiefLabel, pitLabel, mvLabel;
+  private JComboBox<Integer> movingMonsterCount;
+  private JComboBox<Integer> thiefCount;
+  private JComboBox<Integer> pitCount;
   private JPanel dialogPanel;
 
   /**
    * Constructs a new setting panel for user to enter dungeon values.
    */
   public SettingPanel() {
+
+    Integer[] tc = {1, 2};
+    Integer[] pc = {1, 2};
+    Integer[] mc = {1, 2};
     dialogPanel = new JPanel();
     dialogPanel.setBorder(BorderFactory.createLineBorder(Color.black));
-    rowLabel = new JLabel("Enter no. of Row");
-    colLabel = new JLabel("Enter no. of Column");
-    interconnLabel = new JLabel("Enter Inter-Connectivity");
-    percentLabel = new JLabel("Enter treasure percentage");
-    monsterCountLabel = new JLabel("Enter no of monsters");
+    rowLabel = new JLabel("Row");
+    colLabel = new JLabel("Column");
+    interconnLabel = new JLabel("Inter-Connectivity");
+    percentLabel = new JLabel("Treasure percentage");
+    monsterCountLabel = new JLabel("Monsters");
+    thiefLabel = new JLabel("Thief");
+    pitLabel = new JLabel("Pit");
+    mvLabel = new JLabel("Moving Monster");
+    thiefCount = new JComboBox<>(tc);
+    pitCount = new JComboBox<>(pc);
+    movingMonsterCount = new JComboBox<>(mc);
 
     rows = new JTextField("", 2);
     columns = new JTextField("", 2);
@@ -57,6 +71,12 @@ class SettingPanel {
     dialogPanel.add(wrapping);
     dialogPanel.add(monsterCountLabel);
     dialogPanel.add(monsterCount);
+    dialogPanel.add(thiefLabel);
+    dialogPanel.add(thiefCount);
+    dialogPanel.add(pitLabel);
+    dialogPanel.add(pitCount);
+    dialogPanel.add(mvLabel);
+    dialogPanel.add(movingMonsterCount);
 
     return JOptionPane.showConfirmDialog(null, dialogPanel,
             "Please parameters to create the dungeon", JOptionPane.OK_CANCEL_OPTION);
@@ -105,6 +125,33 @@ class SettingPanel {
    */
   public boolean getWrapping() {
     return wrapping.isSelected();
+  }
+
+  /**
+   * Gives the pit count.
+   *
+   * @return pit count
+   */
+  public int getPitCount() {
+    return pitCount.getSelectedIndex();
+  }
+
+  /**
+   * Gives the thief count.
+   *
+   * @return thief count
+   */
+  public int getThiefCount() {
+    return thiefCount.getSelectedIndex();
+  }
+
+  /**
+   * Gives the moving monster count.
+   *
+   * @return moving monster count
+   */
+  public int getMovingMonsterCount() {
+    return movingMonsterCount.getSelectedIndex();
   }
 
   /**

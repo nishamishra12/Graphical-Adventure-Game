@@ -129,4 +129,22 @@ public class MockView implements IView {
     log.append("\nMethod called to get no of monsters");
     return 0;
   }
+
+  @Override
+  public int getThiefCount() {
+    log.append("\nMethod called to get thief count");
+    return 0;
+  }
+
+  @Override
+  public int getPitCount() {
+    log.append("\nMethod called to get pit count");
+    return 0;
+  }
+
+  @Override
+  public int getMovingMonsterCount() {
+    log.append("\nMethod called to get moving monster count");
+    return 0;
+  }
 }

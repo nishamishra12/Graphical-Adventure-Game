@@ -271,8 +271,8 @@ public class Cave implements Location {
    * {@inheritDoc}
    */
   @Override
-  public void updatePlayerVisited() {
-    this.playerVisited = true;
+  public void updatePlayerVisited(boolean value) {
+    this.playerVisited = value;
   }
 
   /**

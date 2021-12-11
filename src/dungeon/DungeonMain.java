@@ -27,7 +27,7 @@ public class DungeonMain {
     if(args.length == 0) {
 
       dungeon = new DungeonImpl(5, 7, 2, 25, false,
-              5, new ActualRandomizer());
+              5, 1, 1, 1, new ActualRandomizer());
 
       IView view = new DungeonView(dungeon);
       IDungeonController controller = new CommandController(view, dungeon);
@@ -44,9 +44,12 @@ public class DungeonMain {
         int treasurePercent = Integer.parseInt(args[3]);
         boolean wrapping = Boolean.parseBoolean(args[4]);
         int monsterCount = Integer.parseInt(args[5]);
+        int thiefCount = Integer.parseInt(args[6]);
+        int pitCount = Integer.parseInt(args[7]);
+        int movingMonsterCount = Integer.parseInt(args[8]);
 
         dungeon = new DungeonImpl(rows, cols, interConnectivity, treasurePercent, wrapping,
-                monsterCount, new ActualRandomizer());
+                monsterCount, thiefCount, pitCount, movingMonsterCount, new ActualRandomizer());
 
         System.out.println("*********** Dungeon Created ***************");
         System.out.println(dungeon);

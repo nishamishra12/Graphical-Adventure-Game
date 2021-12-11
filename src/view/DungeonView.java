@@ -385,9 +385,35 @@ public class DungeonView extends JFrame implements IView {
    * {@inheritDoc}
    */
   @Override
+  public int getThiefCount() {
+    return settingPanel.getThiefCount() + 1;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int getPitCount() {
+    return settingPanel.getPitCount() + 1;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int getMovingMonsterCount() {
+    return settingPanel.getMovingMonsterCount() + 1;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public int setDungeonParameters() {
     return settingPanel.addAllComponents();
   }
+
+
 
   /**
    * {@inheritDoc}

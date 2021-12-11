@@ -38,8 +38,12 @@ public class DungeonImpl implements Dungeon {
   private boolean wrapping;
   private int percent;
   private int monsterCount;
-  private boolean presentMovingMonster;
+  private int thiefCount;
+  private int pitCount;
+  private int movingMonsterCount;
+  private int countOfMV;
   private List<Location> monsterList;
+  private FactoryPattern factoryPattern;
 
   /**
    * Constructs a new dungeon where the player can move.
@@ -54,24 +58,20 @@ public class DungeonImpl implements Dungeon {
    * @throws IllegalArgumentException when the values entered are invalid or null
    */
   public DungeonImpl(int rows, int columns, int interconnectivity, int treasurePercent,
-                     boolean wrapping, int monsterCount, Randomizer randomizer)
+                     boolean wrapping, int monsterCount,
+                     int thiefCount, int pitCount, int movingMonsterCount,
+                     Randomizer randomizer)
           throws IllegalArgumentException {
 
-    if (rows <= 0) {
-      throw new IllegalArgumentException("No of rows is invalid");
-    }
-    if (columns <= 0) {
-      throw new IllegalArgumentException("No of columns is invalid");
-    }
-    if (interconnectivity < 0) {
-      throw new IllegalArgumentException("Inter connectivity provided for the dungeon is incorrect");
-    }
+    validatorHelper(rows, 1, "Rows");
+    validatorHelper(columns, 1, "Columns");
+    validatorHelper(interconnectivity, 0, "Inter-Connectivity");
+    validatorHelper(monsterCount, 1, "Monster Count");
+
     if (treasurePercent < 0 || treasurePercent > 100) {
       throw new IllegalArgumentException("Treasure percent is invalid. Should be between 0-100");
     }
-    if (monsterCount < 1) {
-      throw new IllegalArgumentException("Monster count should be at least 1");
-    }
+
     if (randomizer == null) {
       throw new IllegalArgumentException("Randomizer entered is null. Enter correct randomizer");
     }
@@ -79,10 +79,14 @@ public class DungeonImpl implements Dungeon {
     this.columns = columns;
     this.interconnectivity = interconnectivity;
     this.randomizer = randomizer;
+    this.factoryPattern = new FactoryPattern(randomizer);
     this.wrapping = wrapping;
     this.monsterCount = monsterCount;
     this.percent = calculateTreasurePercent(treasurePercent);
-    this.presentMovingMonster = true;
+    this.thiefCount = thiefCount;
+    this.pitCount = pitCount;
+    this.movingMonsterCount = movingMonsterCount;
+    this.countOfMV = movingMonsterCount;
     this.monsterList = new ArrayList<>();
     this.caveList = new ArrayList<>();
     this.edges = new ArrayList<>();
@@ -93,7 +97,7 @@ public class DungeonImpl implements Dungeon {
     player = new PlayerImpl("Shadow", startCave);
     addDungeonCreatures();
     caveListCopy();
-    locationList.get(startCave.getId()).updatePlayerVisited();
+    locationList.get(startCave.getId()).updatePlayerVisited(true);
   }
 
   /**
@@ -111,11 +115,24 @@ public class DungeonImpl implements Dungeon {
     this.monsterCount = dungeon.getMonsterCount();
     this.finalLocationList = dungeon.getFinalLocationList();
     this.locationList = dungeon.getLocationList();
-    this.presentMovingMonster = true;
     this.randomizer = dungeon.getRandomizer();
     this.monsterList = new ArrayList<>();
+    this.thiefCount = dungeon.getThiefCount();
+    this.movingMonsterCount = dungeon.getMovingMonsterCount();
+    this.pitCount = dungeon.getPitCount();
     reuseDungeonWithOldProperties(dungeon);
+    for (Location location : getLocationList()) {
+      location.updatePlayerVisited(false);
+    }
     this.player = new PlayerImpl("Shadow", startCave);
+    locationList.get(startCave.getId()).updatePlayerVisited(true);
+  }
+
+  private void validatorHelper(int variable, int minVal, String text)
+          throws IllegalArgumentException {
+    if (variable < minVal) {
+      throw new IllegalArgumentException(text + " entered is not correct. Kindly change it");
+    }
   }
 
   private int calculateTreasurePercent(int treasurePercent) {
@@ -180,9 +197,7 @@ public class DungeonImpl implements Dungeon {
     }
 
     this.startCave = dungeon.getStartCave();
-    System.out.println("Start " + this.startCave.getId());
     this.endCave = dungeon.getEndCave();
-    System.out.println("End" + this.endCave.getId());
   }
 
   private void createMaze() {
@@ -207,24 +222,22 @@ public class DungeonImpl implements Dungeon {
     //create edges without wrapping
     for (Map.Entry<Integer, Integer> m : map.entrySet()) {
       if (((m.getKey() + 1) % columns) != 0) {
-        edges.add(new Edge(map.get(m.getKey()), map.get(m.getKey() + 1),
-                randomizer.getNextInt(3, 9)));
+        edges.add(factoryPattern.createEdge(map.get(m.getKey()), map.get(m.getKey() + 1)));
       }
       if (m.getKey() < map.size() - columns) {
-        edges.add(new Edge(map.get(m.getKey()), map.get(m.getKey() + columns),
-                randomizer.getNextInt(3, 9)));
+        edges.add(factoryPattern.createEdge(map.get(m.getKey()), map.get(m.getKey() + columns)));
       }
 
       //if wrapping
       if (wrapping) {
         if (firstRowMap.containsKey(m.getKey())) {
-          edges.add(new Edge(map.get(m.getKey()), map.get(m.getKey() + map.size() - columns),
-                  randomizer.getNextInt(3, 9)));
+          edges.add(factoryPattern.createEdge(map.get(m.getKey()),
+                  map.get(m.getKey() + map.size() - columns)));
         }
 
         if (firstColumnMap.containsKey(m.getKey())) {
-          edges.add(new Edge(map.get(m.getKey()), map.get(m.getKey() + columns - 1),
-                  randomizer.getNextInt(3, 9)));
+          edges.add(factoryPattern.createEdge(map.get(m.getKey()),
+                  map.get(m.getKey() + columns - 1)));
         }
       }
     }
@@ -235,9 +248,8 @@ public class DungeonImpl implements Dungeon {
     extraList.removeAll(mazeList);
     extraList = randomizer.randomizedValueList(extraList);
 
-    if (interconnectivity > extraList.size()) {
-      throw new IllegalArgumentException("Interconnectivity is wrong");
-    }
+    validatorHelper(extraList.size(), interconnectivity, "Interconnectivity");
+
     for (int i = 0; i < interconnectivity; i++) {
       mazeList.add(extraList.get(i));
     }
@@ -246,7 +258,7 @@ public class DungeonImpl implements Dungeon {
   private void createCaves() {
     locationList = new ArrayList<>();
     for (int i = 0; i < rows * columns; i++) {
-      locationList.add(new Cave(i, i / columns, i % columns));
+      locationList.add(factoryPattern.createLocation(i, i / columns, i % columns));
     }
   }
 
@@ -457,7 +469,9 @@ public class DungeonImpl implements Dungeon {
     pitList.remove(endCave);
 
     pitList = randomizer.randomizedValueList(pitList);
-    pitList.get(0).setPit();
+    for (int i = 0; i < pitCount; i++) {
+      pitList.get(i).setPit();
+    }
   }
 
   private void addMovingMonster() {
@@ -478,7 +492,9 @@ public class DungeonImpl implements Dungeon {
       }
     }
     noMonsterList = randomizer.randomizedValueList(noMonsterList);
-    noMonsterList.get(0).addMonster(CreatureType.MOVING_MONSTER);
+    for (int i = 0; i < movingMonsterCount; i++) {
+      noMonsterList.get(i).addMonster(CreatureType.MOVING_MONSTER);
+    }
   }
 
   private void addThiefToDungeon() {
@@ -496,7 +512,9 @@ public class DungeonImpl implements Dungeon {
     }
     dungeonWithoutMonsterPitList.remove(startCave);
     dungeonWithoutMonsterPitList = randomizer.randomizedValueList(dungeonWithoutMonsterPitList);
-    dungeonWithoutMonsterPitList.get(0).setContainsThief(true);
+    for (int i = 0; i < thiefCount; i++) {
+      dungeonWithoutMonsterPitList.get(i).setContainsThief(true);
+    }
   }
 
   private int checkTheDistance(Location currentLoc, String str) {
@@ -506,8 +524,8 @@ public class DungeonImpl implements Dungeon {
         if ((!monsterList.contains(m.getValue())) && m.getValue().hasMonster() &&
                 m.getValue().getMonster().getMonsterType() == CreatureType.OTUYGH
                 && m.getValue().getMonster().getHealth() > 0) {
-            monsterList.add(m.getValue());
-            count++;
+          monsterList.add(m.getValue());
+          count++;
         }
       }
     } else if (str == "PIT") {
@@ -623,11 +641,14 @@ public class DungeonImpl implements Dungeon {
 
       for (Map.Entry<Location, Integer> map : dfs(this.startCave).entrySet()) {
         if (map.getKey().getLocationType() == LocationType.CAVE
-        && map.getValue() >=5) {
+                && map.getValue() >= 5) {
           m.put(map.getKey(), map.getValue());
         }
       }
 
+      //Citation for below code:
+      //https://www.javacodegeeks.com/2017/09/j
+      // ava-8-sorting-hashmap-values-ascending-descending-order.html
       if (!m.isEmpty()) {
         sortedMap = m.entrySet().stream()
                 .sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
@@ -669,8 +690,8 @@ public class DungeonImpl implements Dungeon {
       if (src == null) {
         return;
       }
-        locationLevelMap.put(src, Math.min(locationLevelMap.get(src), level));
-        visited.add(src);
+      locationLevelMap.put(src, Math.min(locationLevelMap.get(src), level));
+      visited.add(src);
 
       for (Map.Entry<Direction, Location> neigh : src.getNeighbors().entrySet()) {
         if (visited.contains(neigh.getValue())) {
@@ -689,7 +710,7 @@ public class DungeonImpl implements Dungeon {
     finalLocationList = new ArrayList<>();
     for (Iterator<Location> iterator = locationList.iterator(); iterator.hasNext(); ) {
       Location location = iterator.next();
-      finalLocationList.add(new Cave(location));
+      finalLocationList.add(factoryPattern.createCopyLocation(location));
     }
   }
 
@@ -708,7 +729,7 @@ public class DungeonImpl implements Dungeon {
     StringBuilder sb = new StringBuilder();
 
     if (result.equals("Moved")) {
-      player.getCurrentLocation().updatePlayerVisited();
+      player.getCurrentLocation().updatePlayerVisited(true);
       //thief
       if (player.getCurrentLocation().isContainsThief()) {
         sb.append("\nThief in the cave.");
@@ -752,7 +773,7 @@ public class DungeonImpl implements Dungeon {
                 + player.getCurrentLocation().getColumn());
       }
       addThiefToDungeon();
-      if (presentMovingMonster) {
+      if (countOfMV > 0) {
         addMovingMonster();
       }
     } else {
@@ -800,7 +821,7 @@ public class DungeonImpl implements Dungeon {
     if (player.getHealth() <= 0) {
       sb.append("\nGame Over!! Player got Killed");
     } else {
-      presentMovingMonster = false;
+      countOfMV--;
       sb.append("\nPlayer killed the moving monster");
       sb.append("\nPlayer moved successfully to location " + player.getCurrentLocation().getId());
     }
@@ -939,17 +960,47 @@ public class DungeonImpl implements Dungeon {
    */
   @Override
   public Location getStartCave() {
-    Location startCaveCopy = new Cave(this.startCave);
+    Location startCaveCopy = factoryPattern.createCopyLocation(this.startCave);
     return startCaveCopy;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public List<Location> getFinalLocationList() {
     return new ArrayList<>(finalLocationList);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Randomizer getRandomizer() {
     return this.randomizer;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int getThiefCount() {
+    return thiefCount;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int getPitCount() {
+    return pitCount;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int getMovingMonsterCount() {
+    return movingMonsterCount;
   }
 }

@@ -4,7 +4,6 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -75,12 +74,12 @@ class DungeonPanel extends JPanel {
       List<Location> tempList = new ArrayList<>(model.getLocationList());
       for (int i = 0; i < tempList.size(); i++) {
         JLabel jLabel = new JLabel();
-        String pathname = "res/images/black.png";
-        BufferedImage myPicture = ImageIO.read(new File(pathname));
+        String pathname = "/images/black.png";
+        BufferedImage myPicture = ImageIO.read(getClass().getResourceAsStream(pathname));
 
-//        if (tempList.get(i).hasPlayerVisited()) {
+        if (tempList.get(i).hasPlayerVisited()) {
         myPicture = overlay(myPicture,
-                "res/images/" + getCorrectImages(tempList.get(i)),
+                "/images/" + getCorrectImages(tempList.get(i)),
                 0);
 
         //if location contains otyugh
@@ -89,11 +88,11 @@ class DungeonPanel extends JPanel {
                 && tempList.get(i).getMonster().getHealth() > 0) {
           if (tempList.get(i).getMonster().getHealth() == 100) {
             myPicture = overlay(myPicture,
-                    "res/images/otyugh.png",
+                    "/images/otyugh.png",
                     2);
           } else if (tempList.get(i).getMonster().getHealth() == 50) {
             myPicture = overlay(myPicture,
-                    "res/images/otyugh.png",
+                    "/images/otyugh.png",
                     2);
           }
         }
@@ -101,28 +100,28 @@ class DungeonPanel extends JPanel {
         //if location contains arrow
         if (tempList.get(i).getArrow() > 0) {
           myPicture = overlay(myPicture,
-                  "res/images/arrow-white.png",
+                  "/images/arrow-white.png",
                   2);
         }
 
         //if location contains ruby
         if (tempList.get(i).getTreasureList().contains(Treasure.RUBY)) {
           myPicture = overlay(myPicture,
-                  "res/images/ruby.png",
+                  "/images/ruby.png",
                   2);
         }
 
         //if contains diamond
         if (tempList.get(i).getTreasureList().contains(Treasure.DIAMOND)) {
           myPicture = overlay(myPicture,
-                  "res/images/diamond.png",
+                  "/images/diamond.png",
                   2);
         }
 
         //if contains sapphire
         if (tempList.get(i).getTreasureList().contains(Treasure.SAPPHIRE)) {
           myPicture = overlay(myPicture,
-                  "res/images/emerald.png",
+                  "/images/emerald.png",
                   2);
         }
 
@@ -131,21 +130,21 @@ class DungeonPanel extends JPanel {
                 && tempList.get(i).getMonster().getMonsterType().equals(CreatureType.MOVING_MONSTER)
                 && tempList.get(i).getMonster().getHealth() > 0) {
           myPicture = overlay(myPicture,
-                  "res/images/moving-monster.png",
+                  "/images/moving-monster.png",
                   2);
         }
 
         //if contains pit
         if (tempList.get(i).isContainsPit()) {
           myPicture = overlay(myPicture,
-                  "res/images/pit.png",
+                  "/images/pit.png",
                   0);
         }
 
         //if contains thief
         if (tempList.get(i).isContainsThief()) {
           myPicture = overlay(myPicture,
-                  "res/images/thief.png",
+                  "/images/thief.png",
                   2);
         }
 
@@ -153,27 +152,27 @@ class DungeonPanel extends JPanel {
         if (tempList.get(i).getId() == model.getPlayer().getCurrentLocation().getId()) {
           if (model.checkSmell() == SmellType.HIGH_PUNGENT) {
             myPicture = overlay(myPicture,
-                    "res/images/stench02.png", 2);
+                    "/images/stench02.png", 2);
           } else if (model.checkSmell() == SmellType.LESS_PUNGENT) {
             myPicture = overlay(myPicture,
-                    "res/images/stench01.png", 2);
+                    "/images/stench01.png", 2);
           }
 
           if(model.checkSoilType() == SoilQuality.DENSE) {
             myPicture = overlay(myPicture,
-                    "res/images/dense.png", 2);
+                    "/images/dense.png", 2);
           } else if(model.checkSoilType() == SoilQuality.POROUS) {
             myPicture = overlay(myPicture,
-                    "res/images/porous.png", 2);
+                    "/images/porous.png", 2);
           }
         }
 
         //player image
         if (tempList.get(i).getId() == model.getPlayer().getCurrentLocation().getId()) {
           myPicture = overlay(myPicture,
-                  "res/images/player.png", 2);
+                  "/images/player.png", 2);
         }
-//        }
+        }
         jLabel.setIcon(new ImageIcon(myPicture));
         gridList.add(jLabel);
         gamePanel.add(jLabel);
@@ -197,7 +196,7 @@ class DungeonPanel extends JPanel {
       refresh();
       gameOver();
     } catch (IOException i) {
-      System.out.println(i.getMessage());
+      i.printStackTrace();
     }
   }
 
@@ -205,7 +204,7 @@ class DungeonPanel extends JPanel {
 
     if (model.getPlayer().getHealth() <= 0) {
       new DialogBox("Player has been killed", "Game Over!!",
-              "res/images/dead.png");
+              "/images/dead.png");
       this.removePanel();
       this.updateUI();
       this.view.clearDescriptions();
@@ -214,7 +213,7 @@ class DungeonPanel extends JPanel {
     if (model.getPlayer().getHealth() > 0
             && model.getPlayer().getCurrentLocation().getId() == model.getEndCave().getId()) {
       new DialogBox("HOORAY!! You Won!", "Game Over!!",
-              "res/images/won.png");
+              "/images/won.png");
       this.removePanel();
       this.updateUI();
       this.view.clearDescriptions();
@@ -281,7 +280,7 @@ class DungeonPanel extends JPanel {
   //Code citation for buffered image: https://piazza.com/class/kt0jcw0x7h955a?cid=1500
   private BufferedImage overlay(BufferedImage starting, String fpath, int offset)
           throws IOException {
-    BufferedImage overlay = ImageIO.read(new File(fpath));
+    BufferedImage overlay = ImageIO.read(getClass().getResourceAsStream(fpath));
     int h = Math.max(starting.getHeight(), overlay.getHeight());
     int w = Math.max(starting.getWidth(), overlay.getWidth());
     BufferedImage combined = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);

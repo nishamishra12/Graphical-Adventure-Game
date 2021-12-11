@@ -33,7 +33,8 @@ public class CommandControllerTest {
   @Before
   public void setUp() throws Exception {
     dungeon = new DungeonImpl(5, 4, 2, 20,
-            false, 2, new FixedRandomizer(3));
+            false, 2, 1, 1, 1,
+            new FixedRandomizer(3));
   }
 
   @Test(expected = IllegalStateException.class)
@@ -865,7 +866,8 @@ public class CommandControllerTest {
     Appendable gameLog = new StringBuilder();
 
     dungeon = new DungeonImpl(5, 4, 2, 20
-            , false, 2, new FixedRandomizer(2));
+            , false, 2, 1,1,1,
+            new FixedRandomizer(2));
 
     commandController = new CommandController(input, gameLog);
     commandController.play(dungeon);

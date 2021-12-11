@@ -128,4 +128,25 @@ public interface ReadOnlyModel {
    * @return the soil quality of the dungeon
    */
   public SoilQuality checkSoilType();
+
+  /**
+   * This method gives the no of thief in the dungeon.
+   *
+   * @return the thief count
+   */
+  public int getThiefCount();
+
+  /**
+   * This method gives the no of pits in te dungeon.
+   *
+   * @return the pit count
+   */
+  public int getPitCount();
+
+  /**
+   * This method gives the no of moving monster in the dungeon.
+   *
+   * @return the moving monster count
+   */
+  public int getMovingMonsterCount();
 }

@@ -147,4 +147,24 @@ public interface IView {
    */
   public int getMonsterCount();
 
+  /**
+   * Gives the number of thieves.
+   *
+   * @return no of thieves
+   */
+  public int getThiefCount();
+
+  /**
+   * Gives the number of pits.
+   *
+   * @return no of pits
+   */
+  public int getPitCount();
+
+  /**
+   * Gives the number of moving monsters.
+   *
+   * @return no of moving monsters
+   */
+  public int getMovingMonsterCount();
 }

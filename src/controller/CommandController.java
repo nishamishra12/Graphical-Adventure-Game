@@ -24,6 +24,7 @@ import view.IView;
 //Code reference for command pattern:
 // https://northeastern.instructure.com/courses/90366/pages/
 // module-8-mvc-controllers?module_item_id=6535605
+
 /**
  * This class represents the controller of the entire dungeon. It is used to play the dungeon
  * game by moving the player, picking arrows, treasure, and slaying the monsters. The game is over
@@ -37,13 +38,14 @@ public class CommandController implements IDungeonController, ActionListener {
   private IView view;
   private Dungeon model;
   private int shootDist;
-  private boolean shootMode;
+  private String shootArrowVariable;
 
   public CommandController(IView v, Dungeon m) {
     this.view = v;
     this.model = m;
     view.addActionListener(this);
     view.makeVisible();
+    this.shootArrowVariable = "No";
   }
 
   /**
@@ -66,6 +68,8 @@ public class CommandController implements IDungeonController, ActionListener {
     configureButtonListener();
   }
 
+  //Code reference for command pattern:
+  // https://northeastern.instructure.com/courses/90366/pages/
   private void configureKeyBoardListener() {
     Map<Character, Runnable> keyTypes = new HashMap<>();
     Map<Integer, Runnable> keyPresses = new HashMap<>();
@@ -73,11 +77,11 @@ public class CommandController implements IDungeonController, ActionListener {
 
     keyPresses.put(KeyEvent.VK_UP, () -> {
       String text;
-      if (!shootMode) {
+      if (!this.shootArrowVariable.equals("Shoot")) {
         text = new Move("N").goCommand(model);
       } else {
         text = new Shoot(shootDist, "N").goCommand(model);
-        this.shootMode = false;
+        this.shootArrowVariable = "No";
       }
       view.showMessage(text);
       view.renderDungeon(this);
@@ -85,11 +89,11 @@ public class CommandController implements IDungeonController, ActionListener {
 
     keyPresses.put(KeyEvent.VK_DOWN, () -> {
       String text;
-      if (!shootMode) {
+      if (!this.shootArrowVariable.equals("Shoot")) {
         text = new Move("S").goCommand(model);
       } else {
         text = new Shoot(shootDist, "S").goCommand(model);
-        this.shootMode = false;
+        this.shootArrowVariable = "No";
       }
       view.showMessage(text);
       view.renderDungeon(this);
@@ -97,11 +101,11 @@ public class CommandController implements IDungeonController, ActionListener {
 
     keyPresses.put(KeyEvent.VK_LEFT, () -> {
       String text;
-      if (!shootMode) {
+      if (!this.shootArrowVariable.equals("Shoot")) {
         text = new Move("W").goCommand(model);
       } else {
         text = new Shoot(shootDist, "W").goCommand(model);
-        this.shootMode = false;
+        this.shootArrowVariable = "No";
       }
       view.showMessage(text);
       view.renderDungeon(this);
@@ -109,11 +113,11 @@ public class CommandController implements IDungeonController, ActionListener {
 
     keyPresses.put(KeyEvent.VK_RIGHT, () -> {
       String text;
-      if (!shootMode) {
+      if (!this.shootArrowVariable.equals("Shoot")) {
         text = new Move("E").goCommand(model);
       } else {
         text = new Shoot(shootDist, "E").goCommand(model);
-        this.shootMode = false;
+        this.shootArrowVariable = "No";
       }
       view.showMessage(text);
       view.renderDungeon(this);
@@ -123,46 +127,44 @@ public class CommandController implements IDungeonController, ActionListener {
       String text = new PickArrow().goCommand(model);
       view.renderDungeon(this);
       view.showMessage(text);
-      this.shootMode = false;
+      this.shootArrowVariable = "No";
     });
 
     keyPresses.put(KeyEvent.VK_T, () -> {
       String text = new PickTreasure().goCommand(model);
       view.renderDungeon(this);
       view.showMessage(text);
-      this.shootMode = false;
-    });
-
-    keyPresses.put(KeyEvent.VK_S, () -> {
-      this.shootMode = true;
-      view.showMessage("Game is in shoot Mode. Enter distance");
+      this.shootArrowVariable = "No";
     });
 
     keyPresses.put(KeyEvent.VK_1, () -> {
-      if (shootMode) {
         this.shootDist = 1;
-        view.showMessage("Enter direction by using arrow keys");
-      }
+        this.shootArrowVariable = "Shoot";
+        view.showMessage("Enter direction by using arrow keys for shooting");
     });
 
     keyPresses.put(KeyEvent.VK_2, () -> {
       this.shootDist = 2;
-      view.showMessage("Enter direction by using arrow keys");
+      this.shootArrowVariable = "Shoot";
+      view.showMessage("Enter direction by using arrow keys for shooting");
     });
 
     keyPresses.put(KeyEvent.VK_3, () -> {
       this.shootDist = 3;
-      view.showMessage("Enter direction by using arrow keys");
+      this.shootArrowVariable = "Shoot";
+      view.showMessage("Enter direction by using arrow keys for shooting");
     });
 
     keyPresses.put(KeyEvent.VK_4, () -> {
       this.shootDist = 4;
-      view.showMessage("Enter direction by using arrow keys");
+      this.shootArrowVariable = "Shoot";
+      view.showMessage("Enter direction by using arrow keys for shooting");
     });
 
     keyPresses.put(KeyEvent.VK_5, () -> {
       this.shootDist = 5;
-      view.showMessage("Enter direction by using arrow keys");
+      this.shootArrowVariable = "Shoot";
+      view.showMessage("Enter direction by using arrow keys for shooting");
     });
 
     keyReleases.put(KeyEvent.VK_UP, () -> {
@@ -181,9 +183,6 @@ public class CommandController implements IDungeonController, ActionListener {
       view.refresh();
     });
     keyReleases.put(KeyEvent.VK_T, () -> {
-      view.refresh();
-    });
-    keyReleases.put(KeyEvent.VK_S, () -> {
       view.refresh();
     });
     keyReleases.put(KeyEvent.VK_1, () -> {
@@ -217,18 +216,21 @@ public class CommandController implements IDungeonController, ActionListener {
     view.renderDungeon(this);
   }
 
+  @Override
   public void shootOtyughOnKeyPress(int shootDist, String str) {
     String text = new Shoot(shootDist, str).goCommand(model);
     view.showMessage(text);
     view.renderDungeon(this);
   }
 
+  @Override
   public void pickTreasureOnKeyPress() {
     String text = new PickTreasure().goCommand(model);
     view.showMessage(text);
     view.renderDungeon(this);
   }
 
+  @Override
   public void pickArrowOnKeyPress() {
     String text = new PickArrow().goCommand(model);
     view.showMessage(text);
@@ -409,7 +411,8 @@ public class CommandController implements IDungeonController, ActionListener {
     try {
       model = new DungeonImpl(view.getRows(), view.getColumns(), view.getInterconnectivity(),
               view.getTreasurePercent(), view.getWrapping(), view.getMonsterCount(),
-              new FixedRandomizer(25));
+              view.getThiefCount(), view.getPitCount(), view.getMovingMonsterCount(),
+              new ActualRandomizer());
       this.view.setNewModel(model, this);
     } catch (IllegalArgumentException e) {
       this.view.showErrorMessage(e.getMessage());
@@ -457,7 +460,6 @@ public class CommandController implements IDungeonController, ActionListener {
         if (result == JOptionPane.OK_OPTION) {
           createDungeonModel();
         } else if (result == JOptionPane.CANCEL_OPTION) {
-          System.out.println("In cancel option");
           //do nothing if parameter box is cancelled
         }
       } else if (e.getActionCommand() == "Quit Game") {

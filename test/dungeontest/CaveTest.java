@@ -202,13 +202,13 @@ public class CaveTest {
   @Test
   public void testUpdatePlayerVisited() {
     assertEquals(false, location.hasPlayerVisited());
-    location.updatePlayerVisited();
+    location.updatePlayerVisited(true);
     assertEquals(true, location.hasPlayerVisited());
   }
 
   @Test
   public void testHasPlayerVisited() {
-    location.updatePlayerVisited();
+    location.updatePlayerVisited(true);
     assertEquals(true, location.hasPlayerVisited());
   }
 

@@ -237,4 +237,34 @@ public class MockModel implements Dungeon {
   public SoilQuality checkSoilType() {
     return null;
   }
+
+  /**
+   * This method gives the no of thief in the dungeon.
+   *
+   * @return the thief count
+   */
+  @Override
+  public int getThiefCount() {
+    return 0;
+  }
+
+  /**
+   * This method gives the no of pits in te dungeon.
+   *
+   * @return the pit count
+   */
+  @Override
+  public int getPitCount() {
+    return 0;
+  }
+
+  /**
+   * This method gives the no of moving monster in the dungeon.
+   *
+   * @return the moving monster count
+   */
+  @Override
+  public int getMovingMonsterCount() {
+    return 0;
+  }
 }
